@@ -18,65 +18,69 @@
 
 using namespace std;
 
-vector<string> powerset(string set) {
-    unsigned int size = 1 << set.size();
-    vector<string> result;
-
-    for (size_t counter = 0; counter < size; counter++) {
-        string subset;
-        for (size_t j = 0; j < set.size(); j++) {
-            if (counter & (1 << j)) {
-                subset += set[j];
-            }
-        }
-        result.push_back(subset);
-    }
-
-    return result;
-}
-
-
-string sortAndRemoveDuplicates(string word){
-    std::stringstream stream;
-    std::sort(word.begin(), word.end());
-    
-    stream << word[0];
-    for(int i = 1; i < word.size(); ++i){
-        if(word[i] != word[i-1]){
-            stream << word[i];
-        }
-    }
-    return stream.str();
-}
-
-int main(){
+class Dictionary {
+private:
     set<string> wordSet;
     unordered_map<string, vector<string> > wordMap;
     
-    ifstream file("dictionary.txt");
-    if (!file.is_open()) {
-        cerr << "Error opening file" << endl;
-        return 1;
-    }
+public:
     
-    string word;
-    while (getline(file, word)) {
-        wordSet.insert(word);
-        string key = sortAndRemoveDuplicates(word);
-        wordMap[key].push_back(word);
-    }
-    file.close();
-    
-    while(true){
-        cout << "Letters: ";
-        string input;
-        cin >> input;
+    vector<string> powerset(string set) {
+        unsigned int size = 1 << set.size();
+        vector<string> result;
         
-        if(wordSet.find(input) != wordSet.end() ){
-            cout << "Word exists" << endl;
+        for (size_t counter = 0; counter < size; counter++) {
+            string subset;
+            for (size_t j = 0; j < set.size(); j++) {
+                if (counter & (1 << j)) {
+                    subset += set[j];
+                }
+            }
+            result.push_back(subset);
         }
         
-        vector<string> permutations = powerset(sortAndRemoveDuplicates(input));
+        return result;
+    }
+    
+    string sortAndRemoveDuplicates(string word){
+        std::stringstream stream;
+        std::sort(word.begin(), word.end());
+        
+        stream << word[0];
+        for(int i = 1; i < word.size(); ++i){
+            if(word[i] != word[i-1]){
+                stream << word[i];
+            }
+        }
+        return stream.str();
+    }
+    
+    void read(){
+        ifstream file("dictionary.txt");
+        if (!file.is_open()) {
+            cerr << "Error opening file" << endl;
+            return;
+        }
+        
+        string word;
+        while (getline(file, word)) {
+            wordSet.insert(word);
+            string key = sortAndRemoveDuplicates(word);
+            wordMap[key].push_back(word);
+        }
+        file.close();
+    }
+    
+    void write(vector<string> data){
+        for (string word : data) {
+            wordSet.insert(word);
+            string key = sortAndRemoveDuplicates(word);
+            wordMap[key].push_back(word);
+        }
+    }
+    
+    vector<string> search(string s){
+        vector<string> permutations = powerset(sortAndRemoveDuplicates(s));
         vector<string> allWords;
         
         for(string key : permutations){
@@ -86,11 +90,30 @@ int main(){
             }
         }
         
-        for(string word : allWords){
-            cout << word << endl;
-        }
-        
+        return allWords;
     }
     
-    return 0;
+    bool find(string s){
+        return wordSet.find(s) != wordSet.end();
+    }
+    
+};
+
+
+int main(){
+    Dictionary dict;
+    dict.read();
+    
+    while(true){
+        string input;
+        cout << "Input:" << endl;
+        cin >> input;
+        
+        vector<string> matches = dict.search(input);
+        cout << matches.size() << endl;
+        for(string m : matches){
+            cout << m << endl;
+        }
+    }
+    
 }
