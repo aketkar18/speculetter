@@ -13,18 +13,21 @@
 #include <unordered_map>
 #include <set>
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
 string sortAndRemoveDuplicates(string word){
-    string key = "";
+    std::stringstream stream;
     std::sort(word.begin(), word.end());
+    
+    stream << word[0];
     for(int i = 1; i < word.size(); ++i){
         if(word[i] != word[i-1]){
-            key += word[i];
+            stream << word[i];
         }
     }
-    return key;
+    return stream.str();
 }
 
 int main(){
@@ -53,10 +56,12 @@ int main(){
         cout << "Letters: ";
         string input;
         cin >> input;
-        input = sortAndRemoveDuplicates(input);
+        
         if(wordSet.find(input) != wordSet.end() ){
             cout << "Word exists" << endl;
         }
+        
+        input = sortAndRemoveDuplicates(input);
         vector<string> words = wordMap[input];
         for(int i = 0; i < words.size(); ++i){
             cout << words[i] << endl;
