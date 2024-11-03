@@ -14,8 +14,27 @@
 #include <set>
 #include <algorithm>
 #include <sstream>
+#include <cmath>
 
 using namespace std;
+
+vector<string> powerset(string set) {
+    unsigned int size = 1 << set.size();
+    vector<string> result;
+
+    for (size_t counter = 0; counter < size; counter++) {
+        string subset;
+        for (size_t j = 0; j < set.size(); j++) {
+            if (counter & (1 << j)) {
+                subset += set[j];
+            }
+        }
+        result.push_back(subset);
+    }
+
+    return result;
+}
+
 
 string sortAndRemoveDuplicates(string word){
     std::stringstream stream;
@@ -44,10 +63,6 @@ int main(){
     while (getline(file, word)) {
         wordSet.insert(word);
         string key = sortAndRemoveDuplicates(word);
-        if(wordMap.find(key) != wordMap.end() ){
-            vector<string> list;
-            wordMap[key] = list;
-        }
         wordMap[key].push_back(word);
     }
     file.close();
@@ -61,10 +76,18 @@ int main(){
             cout << "Word exists" << endl;
         }
         
-        input = sortAndRemoveDuplicates(input);
-        vector<string> words = wordMap[input];
-        for(int i = 0; i < words.size(); ++i){
-            cout << words[i] << endl;
+        vector<string> permutations = powerset(sortAndRemoveDuplicates(input));
+        vector<string> allWords;
+        
+        for(string key : permutations){
+            if(wordMap.find(key) != wordMap.end()){
+                vector<string> words = wordMap[key];
+                allWords.insert(allWords.end(), words.begin(), words.end());
+            }
+        }
+        
+        for(string word : allWords){
+            cout << word << endl;
         }
         
     }
